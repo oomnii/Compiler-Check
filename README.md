@@ -34,7 +34,7 @@ Custom snippet mode and UBSan capability details:
 
 ```powershell
 git clone https://github.com/oomnii/Compiler-Check.git
-cd CompilerCheck
+cd Compiler-Check
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -U pip
