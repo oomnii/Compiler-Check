@@ -33,7 +33,7 @@ Custom snippet mode and UBSan capability details:
 ## Installation
 
 ```powershell
-git clone https://github.com/oomnii/CompilerCheck.git
+git clone https://github.com/oomnii/Compiler-Check.git
 cd CompilerCheck
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
@@ -104,4 +104,5 @@ Byte policy: only **CRLF → LF** before equality; lone CR is preserved.
 
 Python package name remains **`mctk`**; CLI entry points are unchanged (`python -m mctk.cli`, `python -m mctk.dashboard`).
 
-## Developed by **Om Seth** to automate C++17 compiler verification, compare program behavior across compiler configurations, and simplify debugging with reproducible reports.
+
+Developed by **Om Seth** to automate C++17 compiler verification, compare program behavior across compiler configurations, and simplify debugging with reproducible reports.
