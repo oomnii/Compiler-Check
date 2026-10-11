@@ -1,0 +1,15 @@
+resource_limits:
+  compile_timeout_sec: 15
+  run_timeout_sec: 3
+  overall_deadline_sec: 60
+
+ubsan: false
+
+sources:
+  - path: sources/broken.cpp
+    cases:
+      - name: one
+        stdin: "1\n"
+    compiler_configs:
+      - toolchain: g++
+        optimization: O0

@@ -1,0 +1,35 @@
+[project]
+name = "mini-compiler-toolkit"
+version = "0.2.0"
+description = "CompilerCheck — local C++17 cross-configuration verification with oracles and optional UBSan"
+requires-python = ">=3.11"
+dependencies = [
+  "PyYAML>=6.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+dashboard = ["flask>=3.0"]
+
+[project.scripts]
+mctk = "mctk.cli:main"
+mctk-dashboard = "mctk.dashboard:main"
+mctk-probe-host = "mctk.probe_host:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["mctk*"]
+
+[tool.setuptools.package-data]
+mctk = ["templates/**/*", "static/**/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+  "real_compiler: test invokes a real g++/clang++ toolchain on the host",
+  "mock_subprocess: test uses mocked or synthetic subprocess behavior",
+]

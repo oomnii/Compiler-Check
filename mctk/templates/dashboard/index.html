@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="compiler-check-ui" content="2">
+  <title>CompilerCheck</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}?v=3">
+  <script defer src="{{ url_for('static', filename='dashboard.js') }}?v=3"></script>
+</head>
+<body>
+  <script id="bootstrap-data" type="application/json">{{ bootstrap_json | safe }}</script>
+
+  <header class="site-header">
+    <div class="site-header__inner app-shell">
+      <h1>CompilerCheck</h1>
+      <p class="subtitle">Local C++17 compiler verification</p>
+      <div class="header-meta">
+        <div id="toolchain-chips"></div>
+        <span class="trust-notice chip">Local · Trusted code only</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-shell">
+    <div class="workspace">
+      <section class="card" aria-labelledby="source-heading">
+        <h2 id="source-heading">Source &amp; inputs</h2>
+
+        <div class="mode-tabs" role="tablist" aria-label="Input mode">
+          <button type="button" class="mode-tab" role="tab" data-mode="example" aria-selected="true">Examples / generated suite</button>
+          <button type="button" class="mode-tab" role="tab" data-mode="generated" aria-selected="false">Generated template</button>
+          <button type="button" class="mode-tab" role="tab" data-mode="custom" aria-selected="false">Custom C++17</button>
+        </div>
+
+        <div data-mode-panel="example">
+          <div class="field">
+            <label for="example-select">Example suite</label>
+            <select id="example-select" name="example"></select>
+            <p class="field-hint" id="example-hint">Each example runs shared inputs across every selected compiler configuration.</p>
+          </div>
+          <div class="field">
+            <span class="label-text">Source preview (read-only)</span>
+            <textarea id="example-source-preview" class="code" readonly aria-label="Example source preview"></textarea>
+          </div>
+        </div>
+
+        <div data-mode-panel="generated" hidden>
+          <div class="field">
+            <label for="generated-program">Program template</label>
+            <select id="generated-program"></select>
+          </div>
+          <div class="field">
+            <label for="generated-seed">Random seed</label>
+            <input type="number" id="generated-seed" value="20260101" min="0" step="1">
+          </div>
+          <div class="field">
+            <label for="generated-count">Case count (max 30)</label>
+            <input type="number" id="generated-count" value="4" min="1" max="30" step="1">
+          </div>
+        </div>
+
+        <div data-mode-panel="custom" hidden>
+          <div class="field">
+            <label for="custom-source">C++17 source</label>
+            <textarea id="custom-source" class="code" aria-label="Custom C++ source"></textarea>
+          </div>
+          <div class="field">
+            <label for="custom-stdin">Stdin for the shared case</label>
+            <textarea id="custom-stdin" class="code" rows="3" aria-label="Custom stdin">2 3
+</textarea>
+          </div>
+        </div>
+
+        <div class="plan-box" id="run-plan" aria-live="polite">
+          <strong>Run plan</strong>
+          <p class="field-hint">Select options to see what the next verification will execute.</p>
+        </div>
+      </section>
+
+      <aside class="card" id="config-panel" aria-labelledby="config-heading">
+        <h2 id="config-heading">Configuration</h2>
+
+        <div class="field">
+          <span class="label-text">Compilers (smoke-verified on this host)</span>
+          <p class="field-hint" id="config-toolchain-hint" hidden>In example suite mode, compiler matrix comes from the YAML suite (not these toggles).</p>
+          <div class="checkbox-row" id="toolchain-options"></div>
+        </div>
+
+        <div class="field">
+          <span class="label-text">Optimizations</span>
+          <div class="checkbox-row">
+            <label><input type="checkbox" name="optimization" value="O0" checked> O0</label>
+            <label><input type="checkbox" name="optimization" value="O2" checked> O2</label>
+          </div>
+          <p class="field-hint">O3 is not exposed — not configured in this toolkit build.</p>
+        </div>
+
+        <div class="field">
+          <p class="matrix-preview" id="matrix-label">—</p>
+        </div>
+
+        <div class="ubsan-block">
+          <label><input type="checkbox" id="enable-ubsan" checked> Run UBSan diagnostics when supported</label>
+          <p class="field-hint" id="ubsan-example-hint" hidden>In example suite mode, UBSan follows the YAML suite setting (checkbox mirrors suite.yaml).</p>
+          <p class="field-hint">Separate diagnostic builds; findings are not mixed into release comparisons.</p>
+          <details>
+            <summary>UBSan capability on this machine</summary>
+            <ul id="ubsan-list"></ul>
+          </details>
+        </div>
+
+        <button type="button" class="btn-primary" id="run-btn">Run verification</button>
+      </aside>
+    </div>
+
+    <div class="run-status" id="run-status" hidden role="status" aria-live="polite">
+      <span id="run-status-text">Verification running…</span>
+    </div>
+    <p class="field-hint" id="run-error" hidden role="alert" style="color: var(--error); font-weight: 600;"></p>
+
+    <section class="results-section card results-section" id="results-empty">
+      <div class="empty-state">
+        <p>No verification results yet. Configure source and compilers, then run verification.</p>
+      </div>
+    </section>
+
+    <section class="results-section card" id="results-previous" hidden aria-label="Previous run results">
+      <div class="js-summary"></div>
+      <div class="js-verdict"></div>
+      <div class="table-scroll">
+        <table class="config-table" aria-label="Previous configuration results">
+          <thead>
+            <tr>
+              <th>Source</th>
+              <th>Compiler</th>
+              <th>Opt</th>
+              <th>Build</th>
+              <th>Cases</th>
+              <th>Outcome</th>
+              <th>Duration</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody class="js-config-body"></tbody>
+        </table>
+      </div>
+      <div class="export-row">
+        <a class="btn-secondary js-dl-json" href="#">Download JSON</a>
+        <a class="btn-secondary js-dl-txt" href="#">Download text</a>
+      </div>
+    </section>
+
+    <section class="results-section card" id="results-current" hidden aria-label="Current run results">
+      <div class="js-summary"></div>
+      <div class="js-verdict"></div>
+      <div class="table-scroll">
+        <table class="config-table" aria-label="Configuration results">
+          <thead>
+            <tr>
+              <th>Source</th>
+              <th>Compiler</th>
+              <th>Opt</th>
+              <th>Build</th>
+              <th>Cases</th>
+              <th>Outcome</th>
+              <th>Duration</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody class="js-config-body"></tbody>
+        </table>
+      </div>
+      <div class="export-row">
+        <a class="btn-secondary js-dl-json" href="#">Download JSON</a>
+        <a class="btn-secondary js-dl-txt" href="#">Download text</a>
+      </div>
+    </section>
+  </main>
+
+</body>
+</html>

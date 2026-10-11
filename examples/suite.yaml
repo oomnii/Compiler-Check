@@ -1,0 +1,29 @@
+resource_limits:
+  compile_timeout_sec: 30
+  run_timeout_sec: 5
+  overall_deadline_sec: 300
+  max_stdout_bytes: 65536
+  max_stderr_bytes: 65536
+  memory_limit_mb: 512
+
+ubsan: true
+
+sources:
+  - path: sources/add.cpp
+    oracle: arithmetic_sum
+    cases:
+      - name: small
+        stdin: "1 2\n"
+      - name: medium
+        stdin: "10 20\n"
+      - name: large
+        stdin: "100 200\n"
+    compiler_configs:
+      - toolchain: g++
+        optimization: O0
+        flags: ["-Wall"]
+      - toolchain: g++
+        optimization: O2
+      - toolchain: clang++
+        optimization: O2
+        optional: true

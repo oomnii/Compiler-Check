@@ -1,0 +1,52 @@
+# Python
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+*.egg
+
+# Tests / tools
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Runtime artifacts (regenerated locally)
+.mctk_cache/
+.mctk_work/
+.mctk_work_fail/
+.mctk_probe_cache/
+.mctk_smoke_cache/
+.dashboard_runs/
+examples/.mctk_smoke_cache/
+_smoke_dbg/
+.pytest_runs_unknown/
+
+# Compiled outputs
+*.exe
+*.obj
+*.o
+*.out
+*.pdb
+
+# Local reports and probes (CLI writes here by default)
+reports/*.json
+reports/*.txt
+!reports/.gitkeep
+host_probe.json
+debug_report.txt
+debug_report.json
+
+# IDE / OS
+.idea/
+.vscode/
+.cursor/
+*.swp
+.DS_Store
+Thumbs.db

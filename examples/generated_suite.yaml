@@ -1,0 +1,48 @@
+resource_limits:
+  compile_timeout_sec: 45
+  run_timeout_sec: 5
+  overall_deadline_sec: 600
+  max_stdout_bytes: 262144
+  max_stderr_bytes: 262144
+
+ubsan: true
+
+sources:
+  - path: programs/arithmetic.cpp
+    template: arithmetic
+    oracle: arithmetic_sum
+    generate:
+      template: arithmetic
+      seed: 20260101
+      count: 4
+    compiler_configs:
+      - toolchain: g++
+        optimization: O0
+      - toolchain: g++
+        optimization: O2
+
+  - path: programs/sort.cpp
+    template: sort_array
+    oracle: sort_array
+    generate:
+      template: sort_array
+      seed: 20260102
+      count: 4
+    compiler_configs:
+      - toolchain: g++
+        optimization: O0
+      - toolchain: g++
+        optimization: O2
+
+  - path: programs/string_reverse.cpp
+    template: string
+    oracle: string_reverse
+    generate:
+      template: string
+      seed: 20260103
+      count: 4
+    compiler_configs:
+      - toolchain: g++
+        optimization: O0
+      - toolchain: g++
+        optimization: O2
